@@ -17,15 +17,19 @@ class Snake:
   def __init__(self, px, py):
     self.body = []
     self.body.append(Piece(px, py))
+    self.ghost_tail = Piece(px, py)
 
   def head(self):
     return self.body[0]
 
+  def checkout(self, food):
+    if(self.head().px == food.px and self.head().py == food.py):
+      self.eat(food)
+
   def eat(self, food):
-    self.body.insert(0, Piece(food.px, food.py))
-    for i in range(len(self.body)-1):
-      self.body[i].next_p = self.body[i+1]
-      self.body[i+1].prev_p = self.body[i]
+    self.body.append(Piece(self.ghost_tail.px, self.ghost_tail.py))
+    self.body[-1].prev_p = self.body[-2]
+    self.body[-2].next_p = self.body[-1]
     del food
  
   def go_up(self):
@@ -49,6 +53,8 @@ class Snake:
       self.head().py = MAPZ_Y 
   
   def __follow_head(self):
+    self.ghost_tail.px = self.body[-1].px
+    self.ghost_tail.py = self.body[-1].py
     blen = len(self.body)
     for i in range(blen-1):
       self.body[blen-i-1].px = self.body[blen-i-1].prev_p.px
@@ -65,13 +71,15 @@ def game():
   food2 = Unit(5,9)
 
   abby.dump_body() 
-  abby.eat(food1)
+  abby.go_up()
+  abby.checkout(food1)
   abby.dump_body() 
   abby.go_up()
   abby.dump_body() 
   abby.go_up()
   abby.dump_body() 
-  abby.eat(food2)
+  abby.go_up()
+  abby.checkout(food2)
   abby.dump_body() 
   abby.go_up()
   abby.dump_body() 
@@ -87,4 +95,3 @@ def game():
   abby.go_down()
   abby.dump_body() 
 
-game()
