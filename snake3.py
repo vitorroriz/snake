@@ -22,9 +22,6 @@ class Snake:
   def head(self):
     return self.body[0]
 
-  def checkout(self, food):
-    if(self.head().px == food.px and self.head().py == food.py):
-      self.eat(food)
 
   def eat(self, food):
     self.body.append(Piece(self.ghost_tail.px, self.ghost_tail.py))
@@ -65,33 +62,48 @@ class Snake:
     for piece in self.body:
       print("(" + str(piece.px) + "," + str(piece.py) + ")")
 
+class Game:
+   def checkout(self):
+     if(self.snake.head().px == self.food.px and self.snake.head().py == self.food.py):
+       self.snake.eat(self.food)
+
+   def get_food(self):
+     return self.food
+
+   def __init__(self, px=5, py=5):
+     self.food = Unit(0, 0)
+     self.snake = Snake(px, py)
+
 def game():
-  abby = Snake(5,5)
+  mygame = Game(5, 5)
   food1 = Unit(5,6)
   food2 = Unit(5,9)
 
-  abby.dump_body() 
-  abby.go_up()
-  abby.checkout(food1)
-  abby.dump_body() 
-  abby.go_up()
-  abby.dump_body() 
-  abby.go_up()
-  abby.dump_body() 
-  abby.go_up()
-  abby.checkout(food2)
-  abby.dump_body() 
-  abby.go_up()
-  abby.dump_body() 
-  abby.go_up()
-  abby.dump_body() 
+  mygame.food = food1
+  mygame.snake.dump_body() 
+  mygame.snake.go_up()
+  mygame.checkout()
+  mygame.snake.dump_body() 
+  mygame.snake.go_up()
+  mygame.snake.dump_body() 
+  mygame.snake.go_up()
+  mygame.snake.dump_body() 
+  mygame.food = food2
+  mygame.snake.go_up()
+  mygame.checkout()
+  mygame.snake.dump_body() 
+  mygame.snake.go_up()
+  mygame.snake.dump_body() 
+  mygame.snake.go_up()
+  mygame.snake.dump_body() 
   print("right")
-  abby.go_right()
-  abby.dump_body() 
+  mygame.snake.go_right()
+  mygame.snake.dump_body() 
   print("right")
-  abby.go_right()
-  abby.dump_body() 
+  mygame.snake.go_right()
+  mygame.snake.dump_body() 
   print("down")
-  abby.go_down()
-  abby.dump_body() 
+  mygame.snake.go_down()
+  mygame.snake.dump_body() 
 
+game()
