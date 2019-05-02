@@ -22,7 +22,6 @@ class Snake:
   def head(self):
     return self.body[0]
 
-
   def eat(self, food):
     self.body.append(Piece(self.ghost_tail.px, self.ghost_tail.py))
     self.body[-1].prev_p = self.body[-2]
@@ -36,18 +35,14 @@ class Snake:
   def go_down(self):
     self.__follow_head()
     self.head().py = (self.head().py - 1)
-    if(self.head().py < 0):
-      head().py = 0
 
   def go_right(self):
     self.__follow_head()
-    self.head().px = (self.head().px + 1) % MAPSZ_X
+    self.head().px = (self.head().px + 1)
 
   def go_left(self):
     self.__follow_head()
     self.head().px = (self.head().px - 1)
-    if(self.head().px < 0):
-      self.head().py = MAPZ_Y 
   
   def __follow_head(self):
     self.ghost_tail.px = self.body[-1].px
@@ -62,8 +57,18 @@ class Snake:
     for piece in self.body:
       print("(" + str(piece.px) + "," + str(piece.py) + ")")
 
+  def is_out_of_map(self):
+    if(self.head().px < 0 or self.head().px > MAPSZ_X or self.head().py < 0 or self.head().py > MAPSZ_Y):
+      return 0
+    else:
+      return 1
+  def die(self):
+    print("Game over!")
+
 class Game:
    def checkout(self):
+     if(self.snake.is_out_of_map()):
+         self.snake.die()
      if(self.snake.head().px == self.food.px and self.snake.head().py == self.food.py):
        self.snake.eat(self.food)
 
