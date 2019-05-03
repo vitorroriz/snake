@@ -1,3 +1,4 @@
+import arcade
 MAPSZ_Y = 20
 MAPSZ_X = 20
 
@@ -14,10 +15,12 @@ class Piece(Unit):
     self.prev_p =  self 
 
 class Snake:
-  def __init__(self, px, py):
+  def __init__(self, px, py, change_x=0, change_y=0):
     self.body = []
     self.body.append(Piece(px, py))
     self.ghost_tail = Piece(px, py)
+    self.change_x = 0;
+    self.change_y = 0;
 
   def head(self):
     return self.body[0]
@@ -65,50 +68,72 @@ class Snake:
   def die(self):
     print("Game over!")
 
-class Game:
-   def checkout(self):
-     if(self.snake.is_out_of_map()):
-         self.snake.die()
-     if(self.snake.head().px == self.food.px and self.snake.head().py == self.food.py):
-       self.snake.eat(self.food)
+  def update(self):
+    #move the snake
+    self.__follow_head()
+    self.head().px += self.change_x
+    self.head().py += self.change_y
 
-   def get_food(self):
-     return self.food
+  def checkout(self):
+    if(self.is_out_of_map()):
+      self.die()
 
-   def __init__(self, px=5, py=5):
-     self.food = Unit(0, 0)
-     self.snake = Snake(px, py)
+class Game(arcade.Window):
+  def __init__(self, width, height, title, px=5, py=5):
+    #call the parent class init
+    super().__init__(width, height, title)
+    self.set_mouse_visible(False)
+    #create our snake
+    self.snake = Snake(px, py)
+    #@todo: add random px, py
+    self.food = Unit(3, 3)
 
-def game():
-  mygame = Game(5, 5)
-  food1 = Unit(5,6)
-  food2 = Unit(5,9)
+  def on_draw(self):
+    arcade.start_render()
+    self.snake.draw()
 
-  mygame.food = food1
-  mygame.snake.dump_body() 
-  mygame.snake.go_up()
-  mygame.checkout()
-  mygame.snake.dump_body() 
-  mygame.snake.go_up()
-  mygame.snake.dump_body() 
-  mygame.snake.go_up()
-  mygame.snake.dump_body() 
-  mygame.food = food2
-  mygame.snake.go_up()
-  mygame.checkout()
-  mygame.snake.dump_body() 
-  mygame.snake.go_up()
-  mygame.snake.dump_body() 
-  mygame.snake.go_up()
-  mygame.snake.dump_body() 
-  print("right")
-  mygame.snake.go_right()
-  mygame.snake.dump_body() 
-  print("right")
-  mygame.snake.go_right()
-  mygame.snake.dump_body() 
-  print("down")
-  mygame.snake.go_down()
-  mygame.snake.dump_body() 
+  def update(self, delta_time):
+    self.snake.update()
+    if(self.snake.head().px == self.food.px and self.snake.head().py == self.food.py):
+      self.snake.eat(self.food)
 
-game()
+  def get_food(self):
+   return self.food
+
+
+def main():
+  window = Game(20, 20, "Snake")
+  arcade.run()
+#  mygame = Game(5, 5)
+#  food1 = Unit(5,6)
+#  food2 = Unit(5,9)
+#
+#  mygame.food = food1
+#  mygame.snake.dump_body() 
+#  mygame.snake.go_up()
+#  mygame.checkout()
+#  mygame.snake.dump_body() 
+#  mygame.snake.go_up()
+#  mygame.snake.dump_body() 
+#  mygame.snake.go_up()
+#  mygame.snake.dump_body() 
+#  mygame.food = food2
+#  mygame.snake.go_up()
+#  mygame.checkout()
+#  mygame.snake.dump_body() 
+#  mygame.snake.go_up()
+#  mygame.snake.dump_body() 
+#  mygame.snake.go_up()
+#  mygame.snake.dump_body() 
+#  print("right")
+#  mygame.snake.go_right()
+#  mygame.snake.dump_body() 
+#  print("right")
+#  mygame.snake.go_right()
+#  mygame.snake.dump_body() 
+#  print("down")
+#  mygame.snake.go_down()
+#  mygame.snake.dump_body() 
+
+if __name__ == "__main__":
+    main()
