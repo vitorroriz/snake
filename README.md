@@ -8,3 +8,7 @@ Later, I'd like to play around with different factors as:
  - competition between concurrent Snake instances.
  - modification of the game so the "food" stops respawing randomly. Instead, it will learn the best next position
    that leads to a game over.
+   
+I'm using the Arcade Library[1] for graphics.
+
+[1] http://arcade.academy/
