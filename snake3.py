@@ -1,4 +1,11 @@
 import arcade
+import random
+from enum import Enum
+
+SWIDTH  = 500 #square width
+SHEIGHT = 500 #square height 
+RWIDTH  = 20  #square width
+RHEIGHT = 20  #square height 
 MAPSZ_Y = 20
 MAPSZ_X = 20
 
@@ -14,6 +21,25 @@ class Piece(Unit):
     self.next_p =  self 
     self.prev_p =  self 
 
+  def draw(self, color):
+    idx = self.px
+    idy = self.py
+    arcade.draw_rectangle_filled(idx*RWIDTH + RWIDTH/2, idy*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, color)
+    arcade.draw_rectangle_outline(idx*RWIDTH + RWIDTH/2, idy*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.AMAZON)
+
+  def respawn(self):
+    arcade.draw_rectangle_filled(self.px*RWIDTH + RWIDTH/2, self.py*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.BLACK)
+    arcade.draw_rectangle_outline(self.px*RWIDTH + RWIDTH/2, self.py*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.WHITE)
+    self.px = random.randint(0, int(SWIDTH/RWIDTH)-1)
+    self.py = random.randint(0, int(SHEIGHT/RHEIGHT)-1)
+
+class Direction(Enum):
+  stop  = 0
+  up    = 1
+  right = 2
+  down  = 3
+  left  = 4
+
 class Snake:
   def __init__(self, px, py, change_x=0, change_y=0):
     self.body = []
@@ -21,6 +47,7 @@ class Snake:
     self.ghost_tail = Piece(px, py)
     self.change_x = 0;
     self.change_y = 0;
+    self.dir = Direction.stop
 
   def head(self):
     return self.body[0]
@@ -29,7 +56,7 @@ class Snake:
     self.body.append(Piece(self.ghost_tail.px, self.ghost_tail.py))
     self.body[-1].prev_p = self.body[-2]
     self.body[-2].next_p = self.body[-1]
-    del food
+    food.respawn()
  
   def go_up(self):
     self.__follow_head()
@@ -61,22 +88,30 @@ class Snake:
       print("(" + str(piece.px) + "," + str(piece.py) + ")")
 
   def is_out_of_map(self):
-    if(self.head().px < 0 or self.head().px > MAPSZ_X or self.head().py < 0 or self.head().py > MAPSZ_Y):
-      return 0
-    else:
+    if(self.head().px < 0 or self.head().px > int(SWIDTH/RWIDTH) or self.head().py < 0 or self.head().py > int(SHEIGHT/RHEIGHT)):
       return 1
-  def die(self):
-    print("Game over!")
+    else:
+      return 0
+  def had_self_collide(self):
+    for idx in range(len(self.body)-1):
+      if(self.head().px == self.body[idx+1].px and self.head().py == self.body[idx+1].py):
+        return True
+    return False
 
   def update(self):
     #move the snake
-    self.__follow_head()
-    self.head().px += self.change_x
-    self.head().py += self.change_y
+    if(self.dir == Direction.up):
+      self.go_up()
+    elif(self.dir == Direction.down):
+      self.go_down()
+    elif(self.dir == Direction.left):
+      self.go_left()
+    elif(self.dir == Direction.right):
+      self.go_right()
 
-  def checkout(self):
-    if(self.is_out_of_map()):
-      self.die()
+  def draw(self):
+    for piece in self.body:
+        piece.draw(arcade.color.WHITE)
 
 class Game(arcade.Window):
   def __init__(self, width, height, title, px=5, py=5):
@@ -86,54 +121,52 @@ class Game(arcade.Window):
     #create our snake
     self.snake = Snake(px, py)
     #@todo: add random px, py
-    self.food = Unit(3, 3)
+    self.food = Piece(3, 3)
+    self.score = 0
 
   def on_draw(self):
     arcade.start_render()
+    #draw background
+    for i in range(int(SWIDTH/RWIDTH)):
+        for j in range(int(SHEIGHT/RHEIGHT)):
+          arcade.draw_rectangle_outline(i*RWIDTH + RWIDTH/2, j*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.WHITE)
+    #draw snake
     self.snake.draw()
+    if(self.food):
+      self.food.draw(arcade.color.YELLOW)
 
   def update(self, delta_time):
+    if(self.snake.is_out_of_map() or self.snake.had_self_collide()):
+      self.game_over()
     self.snake.update()
     if(self.snake.head().px == self.food.px and self.snake.head().py == self.food.py):
       self.snake.eat(self.food)
+      self.score_up()
 
   def get_food(self):
    return self.food
 
+  def on_key_press(self, key, modifiers):
+    if key == arcade.key.LEFT:
+      self.snake.dir = Direction.left       
+    if key == arcade.key.RIGHT:
+      self.snake.dir = Direction.right
+    if key == arcade.key.UP:
+      self.snake.dir = Direction.up
+    if key == arcade.key.DOWN:
+      self.snake.dir = Direction.down
+
+  def score_up(self):
+    self.score += 1
+
+  def game_over(self): 
+    print("Game over! :(")
+    print("Score: " + str(self.score))
+    arcade.close_window()
 
 def main():
-  window = Game(20, 20, "Snake")
+  window = Game(SWIDTH, SHEIGHT, "Snake")
   arcade.run()
-#  mygame = Game(5, 5)
-#  food1 = Unit(5,6)
-#  food2 = Unit(5,9)
-#
-#  mygame.food = food1
-#  mygame.snake.dump_body() 
-#  mygame.snake.go_up()
-#  mygame.checkout()
-#  mygame.snake.dump_body() 
-#  mygame.snake.go_up()
-#  mygame.snake.dump_body() 
-#  mygame.snake.go_up()
-#  mygame.snake.dump_body() 
-#  mygame.food = food2
-#  mygame.snake.go_up()
-#  mygame.checkout()
-#  mygame.snake.dump_body() 
-#  mygame.snake.go_up()
-#  mygame.snake.dump_body() 
-#  mygame.snake.go_up()
-#  mygame.snake.dump_body() 
-#  print("right")
-#  mygame.snake.go_right()
-#  mygame.snake.dump_body() 
-#  print("right")
-#  mygame.snake.go_right()
-#  mygame.snake.dump_body() 
-#  print("down")
-#  mygame.snake.go_down()
-#  mygame.snake.dump_body() 
 
 if __name__ == "__main__":
     main()
