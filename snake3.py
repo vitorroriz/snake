@@ -2,10 +2,10 @@ import arcade
 import random
 from enum import Enum
 
-SWIDTH  = 500 #square width
-SHEIGHT = 500 #square height 
+SWIDTH  = 300 #square width
+SHEIGHT = 300 #square height
 RWIDTH  = 20  #square width
-RHEIGHT = 20  #square height 
+RHEIGHT = 20  #square height
 MAPSZ_Y = 20
 MAPSZ_X = 20
 
@@ -18,8 +18,8 @@ class Piece(Unit):
   def __init__(self, px, py):
     self.px = px
     self.py = py
-    self.next_p =  self 
-    self.prev_p =  self 
+    self.next_p =  self
+    self.prev_p =  self
 
   def draw(self, color):
     idx = self.px
@@ -27,11 +27,11 @@ class Piece(Unit):
     arcade.draw_rectangle_filled(idx*RWIDTH + RWIDTH/2, idy*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, color)
     arcade.draw_rectangle_outline(idx*RWIDTH + RWIDTH/2, idy*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.AMAZON)
 
-  def respawn(self):
+  def respawn(self, px, py):
     arcade.draw_rectangle_filled(self.px*RWIDTH + RWIDTH/2, self.py*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.BLACK)
     arcade.draw_rectangle_outline(self.px*RWIDTH + RWIDTH/2, self.py*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.WHITE)
-    self.px = random.randint(0, int(SWIDTH/RWIDTH)-1)
-    self.py = random.randint(0, int(SHEIGHT/RHEIGHT)-1)
+    self.px = px
+    self.py = py
 
 class Direction(Enum):
   stop  = 0
@@ -56,7 +56,12 @@ class Snake:
     self.body.append(Piece(self.ghost_tail.px, self.ghost_tail.py))
     self.body[-1].prev_p = self.body[-2]
     self.body[-2].next_p = self.body[-1]
-    food.respawn()
+    px = random.randint(0, int(SWIDTH/RWIDTH)-1)
+    pyexcl = [x.py for x in self.body if x.px == px]
+    pylist = [y for y in range(0, int(SHEIGHT/RHEIGHT)-1) if y not in pyexcl]
+    py = random.choice(pylist)
+    #py = random.randint(0, int(SHEIGHT/RHEIGHT)-1)
+    food.respawn(px, py)
  
   def go_up(self):
     self.__follow_head()
@@ -123,6 +128,7 @@ class Game(arcade.Window):
     #@todo: add random px, py
     self.food = Piece(3, 3)
     self.score = 0
+    #self.set_update_rate(1/20) 
 
   def on_draw(self):
     arcade.start_render()
@@ -135,7 +141,7 @@ class Game(arcade.Window):
     if(self.food):
       self.food.draw(arcade.color.YELLOW)
 
-  def update(self, delta_time):
+  def on_update(self, delta_time):
     if(self.snake.is_out_of_map() or self.snake.had_self_collide()):
       self.game_over()
     self.snake.update()
