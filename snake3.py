@@ -132,12 +132,15 @@ class Game(arcade.Window):
     self.score = 0
     #self.set_update_rate(1/20) 
 
-  def on_draw(self):
-    arcade.start_render()
-    #draw background
+  def draw_grid(self, color):
     for i in range(int(SWIDTH/RWIDTH)):
         for j in range(int(SHEIGHT/RHEIGHT)):
-          arcade.draw_rectangle_outline(i*RWIDTH + RWIDTH/2, j*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, arcade.color.WHITE)
+          arcade.draw_rectangle_outline(i*RWIDTH + RWIDTH/2, j*RHEIGHT + RHEIGHT/2, RWIDTH, RHEIGHT, color)
+
+  def on_draw(self):
+    arcade.start_render()
+    #draw background grid 
+    self.draw_grid(arcade.color.WHITE)
     #draw snake
     self.snake.draw()
     if(self.food):
