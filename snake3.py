@@ -57,7 +57,7 @@ class Snake:
     self.body[-1].prev_p = self.body[-2]
     self.body[-2].next_p = self.body[-1]
     px = random.randint(0, int(SWIDTH/RWIDTH)-1)
-    pyexcl = [x.py for x in self.body if x.px == px]
+    pyexcl = [piece.py for piece in self.body if piece.px == px]
     pylist = [y for y in range(0, int(SHEIGHT/RHEIGHT)-1) if y not in pyexcl]
     py = random.choice(pylist)
     #py = random.randint(0, int(SHEIGHT/RHEIGHT)-1)
@@ -126,7 +126,9 @@ class Game(arcade.Window):
     #create our snake
     self.snake = Snake(px, py)
     #@todo: add random px, py
-    self.food = Piece(3, 3)
+    px = random.randint(0, int(SWIDTH/RWIDTH)-1)
+    py = random.randint(0, int(SHEIGHT/RHEIGHT)-1)
+    self.food = Piece(px, py)
     self.score = 0
     #self.set_update_rate(1/20) 
 
