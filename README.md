@@ -1,5 +1,5 @@
 # snake
-Simple implementation of the classic snake game.
+Classic snake game implementation for a deep learning experiment.
 
 This game will be used for an experiment on machine learning, probably within deep learning domain. 
 My intetion is to make the snake learn how to play the game by itself, according to different models.
